@@ -2,6 +2,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.theme import Theme
+from rich.align import Align
 
 custom_theme = Theme({
     "info": "dim cyan",
@@ -12,12 +13,22 @@ custom_theme = Theme({
 
 console = Console(theme=custom_theme)
 
+BANNER = r"""
+      ██╗██╗██╗   ██╗███████╗██╗  ██╗ █████╗  ██████╗ 
+      ██║██║██║   ██║╚══███╔╝██║  ██║██╔══██╗██╔═══██╗
+      ██║██║██║   ██║  ███╔╝ ███████║███████║██║   ██║
+ ██   ██║██║██║   ██║ ███╔╝  ██╔══██║██╔══██║██║   ██║
+ ╚█████╔╝██║╚██████╔╝███████╗██║  ██║██║  ██║╚██████╔╝
+  ╚════╝ ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ 
+"""
+
 def print_header():
-    console.print(Panel.fit(
-        "[bold blue]Jiuzhao[/bold blue]: Automated Formalization Agent v0.2.0\n"
-        "[dim]Powered by LLMs & Lean 4[/dim]",
-        border_style="blue"
+    console.print(Align.center(f"[bold blue]{BANNER}[/bold blue]"))
+    console.print(Align.center(
+        "[dim]Automated Formalization Agent for Lean 4[/dim]\n"
+        "[dim]v0.2.0[/dim]"
     ))
+    console.print()
 
 def print_agent_msg(content: str):
     console.print(Panel(
@@ -29,6 +40,9 @@ def print_agent_msg(content: str):
 
 def print_tool_use(tool_name: str, args: str):
     console.print(f"[dim]🔨 Tool Call: [bold]{tool_name}[/bold][/dim]")
+    # Truncate args if they are too long (e.g. file content)
+    if len(args) > 200:
+        args = args[:200] + "..."
     console.print(f"[dim]   Args: {args}[/dim]")
 
 def print_tool_output(output: str):

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jiuzhao"
-version = "0.1.0"
+version = "0.2.0"
 description = "An Open-Source CLI Agent for Automated Formalization and Theorem Proving"
 authors = ["Imbue <hi@chunjiang.dev>"]
 

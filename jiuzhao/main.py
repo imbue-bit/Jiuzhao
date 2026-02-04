@@ -15,10 +15,8 @@ def prove(statement: str = typer.Argument(..., help="The mathematical statement 
     
     try:
         agent = Agent()
-        # Initial run with the user's statement
         agent.run(statement)
         
-        # Interactive loop
         while True:
             console.print("\n[bold yellow]User Input[/bold yellow] (type 'exit' to quit):")
             user_input = Prompt.ask(">")
@@ -44,6 +42,7 @@ def config():
     print_header()
     config_data = load_config()
     
+    # --- Model Selection ---
     current = config_data.get("current_model", "None")
     console.print(f"Current Model: [bold green]{current}[/bold green]\n")
     
@@ -71,6 +70,7 @@ def config():
         config_data["current_model"] = selected_model["name"]
         console.print(f"[info]Model updated to {selected_model['name']}[/info]")
 
+    # --- Generation Parameters ---
     console.print("\n[bold]Generation Settings:[/bold]")
     gen_config = config_data.get("generation", {})
     
