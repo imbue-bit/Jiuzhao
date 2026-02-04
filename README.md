@@ -1,6 +1,6 @@
-# Jiuzhao
-
 <div align="center">
+
+![](banner.png)
 
 ### **The Autonomous Runtime for Formal Verification & Mathematical Reasoning**
 
