@@ -1,0 +1,20 @@
+[
+  {
+    "name": "rwkv-7-prover-1.5b",
+    "provider": "ollama",
+    "base_url": "http://localhost:11434/v1",
+    "api_key": "ollama"
+  },
+  {
+    "name": "gpt-4o",
+    "provider": "openai",
+    "base_url": null,
+    "api_key": null
+  },
+  {
+    "name": "claude-3-5-sonnet-20240620",
+    "provider": "openai",
+    "base_url": null,
+    "api_key": null
+  }
+]
