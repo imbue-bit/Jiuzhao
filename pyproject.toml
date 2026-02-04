@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "jiuzhao"
+version = "0.1.0"
+description = "An Open-Source CLI Agent for Automated Formalization and Theorem Proving"
+authors = ["Imbue <hi@chunjiang.dev>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+typer = {extras = ["all"], version = "^0.9.0"}
+rich = "^13.7.0"
+openai = "^1.12.0"
+python-dotenv = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+jiuzhao = "jiuzhao.main:app"
