@@ -1,6 +1,6 @@
 <div align="center">
 
-![](banner.png)
+![](banner.webp)
 
 ### **The Autonomous Runtime for Formal Verification & Mathematical Reasoning**
 
