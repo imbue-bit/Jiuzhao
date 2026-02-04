@@ -1,7 +1,8 @@
 import re
 import json
 from jiuzhao.core.llm import LLMClient
-from jiuzhao.tools.impl import ToolRegistry
+from jiuzhao.tools.registry import ToolRegistry
+from jiuzhao.config import get_generation_config
 from jiuzhao.utils.ui import console, print_agent_msg, print_tool_use, print_tool_output, print_success, print_error
 
 class Agent:
@@ -9,32 +10,40 @@ class Agent:
         self.llm = LLMClient()
         self.tools = ToolRegistry()
         self.history = []
+        self.gen_config = get_generation_config()
         self._init_system_prompt()
 
     def _init_system_prompt(self):
         tool_docs = self.tools.get_tool_definitions()
         system_prompt = f"""
 You are Jiuzhao, an expert Automated Formalization Agent for Lean 4.
-Your goal is to formalize mathematical statements and prove them rigorously.
+
+GOAL:
+Formalize mathematical statements and prove them rigorously using Lean 4.
 
 AVAILABLE TOOLS:
 {tool_docs}
 
-WORKFLOW:
-1.  **Analyze**: Understand the user's request. If ambiguous, ask for clarification.
-2.  **Act**: Use tools to write code or verify proofs.
-    To use a tool, output XML strictly like this:
-    <TOOL name="tool_name">
-    {{ "json_arg": "value" }}
-    </TOOL>
-3.  **Refine**: If the compiler returns an error, analyze it and fix the code.
-4.  **Finish**: When the proof is verified (SUCCESS), inform the user.
+INSTRUCTIONS:
+1. **Explore**: If you don't know the project structure, use `file_system` (list) or `project_search`.
+2. **Plan**: Break down the proof into lemmas if necessary.
+3. **Act**: Write code using `file_system` (write).
+4. **Verify**: ALWAYS verify your code using `lean_tool` (check_file).
+5. **Refine**: If compilation fails, read the error, adjust the code, and retry.
+6. **Finish**: When `lean_tool` returns SUCCESS, inform the user.
 
-Do not output markdown code blocks for tool calls. Just raw XML tags.
+TOOL USAGE FORMAT:
+To use a tool, output XML strictly like this:
+<TOOL name="tool_name">
+{{ "json_key": "json_value" }}
+</TOOL>
+
+Do not use markdown code blocks (```xml) for tool calls.
 """
         self.history.append({"role": "system", "content": system_prompt})
 
     def _parse_tool_call(self, text: str):
+        # Improved regex to handle potential newlines inside the tag
         pattern = r'<TOOL name="(.*?)">\s*({.*?})\s*</TOOL>'
         match = re.search(pattern, text, re.DOTALL)
         if match:
@@ -44,7 +53,7 @@ Do not output markdown code blocks for tool calls. Just raw XML tags.
     def run(self, user_input: str):
         self.history.append({"role": "user", "content": user_input})
         
-        max_turns = 10
+        max_turns = self.gen_config.get("max_turns", 15)
         turn = 0
         
         while turn < max_turns:
@@ -60,7 +69,12 @@ Do not output markdown code blocks for tool calls. Just raw XML tags.
             
             if tool_name:
                 try:
-                    tool_args = json.loads(tool_args_str)
+                    # Clean up potential markdown formatting inside JSON if model hallucinates it
+                    clean_json = tool_args_str.strip()
+                    if clean_json.startswith("```json"): clean_json = clean_json[7:]
+                    if clean_json.endswith("```"): clean_json = clean_json[:-3]
+                    
+                    tool_args = json.loads(clean_json)
                     print_tool_use(tool_name, str(tool_args))
                     
                     with console.status(f"[bold cyan]Executing {tool_name}..."):
@@ -73,15 +87,24 @@ Do not output markdown code blocks for tool calls. Just raw XML tags.
                         "content": f"Tool '{tool_name}' output:\n{tool_result}"
                     })
 
-                    if "SUCCESS: Proof Verified" in tool_result:
-                        print_success("Proof verified by Lean compiler!")
+                    if "SUCCESS" in tool_result:
+                        print_success("Action verified successfully by tool!")
                     
                 except json.JSONDecodeError:
                     error_msg = "Error: Invalid JSON in tool arguments."
                     print_error(error_msg)
                     self.history.append({"role": "user", "content": error_msg})
+                except Exception as e:
+                    error_msg = f"Error processing tool call: {str(e)}"
+                    print_error(error_msg)
+                    self.history.append({"role": "user", "content": error_msg})
             else:
-                if "verified" in response.lower() and "success" in response.lower():
+                # No tool called. Check if the agent thinks it's done.
+                # Heuristic: If it says "QED" or "proven" or "done" and no tool was called.
+                if "QED" in response or ("proven" in response.lower() and "success" in response.lower()):
+                    print_success("Jiuzhao has finished the task.")
                     break
                 
+                # If it's just a conversational response, we might want to stop or ask user
+                # For now, we break to let the user reply in the main loop
                 break
