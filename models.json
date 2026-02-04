@@ -16,5 +16,11 @@
     "provider": "openai",
     "base_url": null,
     "api_key": null
+  },
+  {
+    "name": "deepseek-reasoner",
+    "provider": "openai",
+    "base_url": "https://api.deepseek.com",
+    "api_key": null
   }
 ]
