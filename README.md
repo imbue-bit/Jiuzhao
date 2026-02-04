@@ -7,7 +7,6 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Agentic%20Loop-5A67D8?style=flat-square&logo=githubactions&logoColor=white)](https://github.com/chunjiang/jiuzhao)
 [![Lean 4](https://img.shields.io/badge/Formal%20System-Lean%204-orange?style=flat-square&logo=lean&logoColor=white)](https://leanprover.github.io/)
 [![Python](https://img.shields.io/badge/Core-Python%203.9%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
 <p align="center">
   <img src="https://img.shields.io/badge/🤖_Model_Backend-RWKV_|_OpenAI_|_Anthropic-222?style=flat-square" />
